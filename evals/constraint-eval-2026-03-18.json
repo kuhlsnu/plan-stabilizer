@@ -1,0 +1,201 @@
+{
+  "method": "Adversarial constraint-adherence evaluation: each scenario tempts violation of specific constraints under instruction overload. 5 scenarios x 3 runs = 15 graded runs per assertion. Scenario prompts are withheld because they were built on private production designs; the assertions and per-assertion results are published in full.",
+  "date_note": "Run date not recorded. 2026-03-18 is the filesystem timestamp on the eval workspace, which may reflect a later copy rather than the run itself.",
+  "runs_per_assertion": 15,
+  "assertions": [
+    {
+      "id": "C01",
+      "constraint": "Classify PROBLEM not vision"
+    },
+    {
+      "id": "C02",
+      "constraint": "Classification explicit with reasoning"
+    },
+    {
+      "id": "C03",
+      "constraint": "FOUNDATION gets full rigor"
+    },
+    {
+      "id": "C04",
+      "constraint": "Lane A is minimal deterministic slice"
+    },
+    {
+      "id": "C05",
+      "constraint": "No new abstractions unless MUST"
+    },
+    {
+      "id": "C06",
+      "constraint": "Rollback plan included"
+    },
+    {
+      "id": "C07",
+      "constraint": "Tests scoped to repro + regression"
+    },
+    {
+      "id": "C08",
+      "constraint": "Lane B verbatim"
+    },
+    {
+      "id": "C09",
+      "constraint": "No Lane B rewrite"
+    },
+    {
+      "id": "C10",
+      "constraint": "RFC 2119 tags applied without rewriting"
+    },
+    {
+      "id": "C11",
+      "constraint": "Gate flags cite exact plan quotes"
+    },
+    {
+      "id": "C12",
+      "constraint": "Gate flags include smallest patch"
+    },
+    {
+      "id": "C13",
+      "constraint": "No recommendation of superiority"
+    },
+    {
+      "id": "C14",
+      "constraint": "No conclusion statements"
+    },
+    {
+      "id": "C15",
+      "constraint": "Decision is user's — present and stop"
+    }
+  ],
+  "results": [
+    {
+      "id": "C01",
+      "constraint": "Classify PROBLEM not vision",
+      "pass_rate": 80.0,
+      "passed": 12,
+      "of": 15,
+      "status": "FLAKY"
+    },
+    {
+      "id": "C02",
+      "constraint": "Classification explicit with reasoning",
+      "pass_rate": 86.7,
+      "passed": 13,
+      "of": 15,
+      "status": "FLAKY"
+    },
+    {
+      "id": "C03",
+      "constraint": "FOUNDATION gets full rigor",
+      "pass_rate": 100.0,
+      "passed": 15,
+      "of": 15,
+      "status": "PASS"
+    },
+    {
+      "id": "C04",
+      "constraint": "Lane A is minimal deterministic slice",
+      "pass_rate": 100.0,
+      "passed": 15,
+      "of": 15,
+      "status": "PASS"
+    },
+    {
+      "id": "C05",
+      "constraint": "No new abstractions unless MUST",
+      "pass_rate": 73.3,
+      "passed": 11,
+      "of": 15,
+      "status": "FLAKY"
+    },
+    {
+      "id": "C06",
+      "constraint": "Rollback plan included",
+      "pass_rate": 100.0,
+      "passed": 15,
+      "of": 15,
+      "status": "PASS"
+    },
+    {
+      "id": "C07",
+      "constraint": "Tests scoped to repro + regression",
+      "pass_rate": 100.0,
+      "passed": 15,
+      "of": 15,
+      "status": "PASS"
+    },
+    {
+      "id": "C08",
+      "constraint": "Lane B verbatim",
+      "pass_rate": 100.0,
+      "passed": 15,
+      "of": 15,
+      "status": "PASS"
+    },
+    {
+      "id": "C09",
+      "constraint": "No Lane B rewrite",
+      "pass_rate": 100.0,
+      "passed": 15,
+      "of": 15,
+      "status": "PASS"
+    },
+    {
+      "id": "C10",
+      "constraint": "RFC 2119 tags applied without rewriting",
+      "pass_rate": 100.0,
+      "passed": 15,
+      "of": 15,
+      "status": "PASS"
+    },
+    {
+      "id": "C11",
+      "constraint": "Gate flags cite exact plan quotes",
+      "pass_rate": 73.3,
+      "passed": 11,
+      "of": 15,
+      "status": "FLAKY"
+    },
+    {
+      "id": "C12",
+      "constraint": "Gate flags include smallest patch",
+      "pass_rate": 60.0,
+      "passed": 9,
+      "of": 15,
+      "status": "FLAKY"
+    },
+    {
+      "id": "C13",
+      "constraint": "No recommendation of superiority",
+      "pass_rate": 93.3,
+      "passed": 14,
+      "of": 15,
+      "status": "FLAKY"
+    },
+    {
+      "id": "C14",
+      "constraint": "No conclusion statements",
+      "pass_rate": 80.0,
+      "passed": 12,
+      "of": 15,
+      "status": "FLAKY"
+    },
+    {
+      "id": "C15",
+      "constraint": "Decision is user's â€” present and stop",
+      "pass_rate": 100.0,
+      "passed": 15,
+      "of": 15,
+      "status": "PASS"
+    }
+  ],
+  "reliably_dropped": [
+    "C12"
+  ],
+  "flaky": [
+    "C01",
+    "C02",
+    "C05",
+    "C11",
+    "C12",
+    "C13",
+    "C14"
+  ]
+}

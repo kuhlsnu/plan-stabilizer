@@ -1,0 +1,53 @@
+{
+    "skill": "stabilizer",
+    "cases": [
+        {
+            "prompt": "I want to add appointment reminders to our outpatient clinic scheduling app. Here's the design:\n1. Add a WebSocket server for real-time reminder delivery\n2. Create a reminder preferences UI with 12 reminder categories\n3. Add an email digest system with daily/weekly options\n4. Build reminder history with search and filtering\n5. Add push notification support via a third-party provider\n6. Create an admin dashboard for reminder analytics\n\nPlease assess this for implementation.",
+            "expect": [
+                "splits the design into two explicit lanes: a minimal deterministic slice (Lane A) and the full vision (Lane B)",
+                "Lane B preserves the original 6-item design verbatim rather than summarizing or rewriting it",
+                "applies RFC 2119 classification tags (MUST, SHOULD, MAY) to individual items in the design",
+                "classifies the problem type using an explicit category (FOUNDATION, INTEGRATION, FEATURE, or EXPERIMENT) with stated reasoning",
+                "runs gate checks as distinct named assessments — not just general observations mixed into prose",
+                "ends with a forced decision prompt presenting concrete options, not an open-ended recommendation"
+            ],
+            "reject": [
+                "provides a single recommended approach without presenting the minimal slice vs full vision as separate options",
+                "recommends Lane A as the better choice or frames the minimal slice as morally superior",
+                "rewrites or summarizes the original design items in Lane B instead of preserving them verbatim"
+            ]
+        },
+        {
+            "prompt": "Our warehouse inventory tool has a bug: it accepts negative quantities on stock adjustments, which corrupts downstream reorder calculations. Design: fix the validation, add comprehensive input sanitization across all 47 form fields, refactor the validation layer into a reusable framework, and add unit tests for all validators.\n\nAssess this scope.",
+            "expect": [
+                "classifies the problem based on the bug itself, not the expanded vision — the bug is a single-field validation fix regardless of the design's ambition",
+                "Lane A identifies the smallest change that makes negative stock quantities impossible, not a general improvement plan",
+                "identifies that the design adds new surface area (reusable framework, 47-field sanitization) beyond what the bug requires",
+                "checks whether the plan adds capability before constraint — the framework refactor is capability, the negative-value guard is constraint",
+                "treats the invariant question explicitly: what must be true about stock quantities six months from now",
+                "presents a decision between shipping the fix alone vs. the fix plus selected SHOULD items, without pre-selecting"
+            ],
+            "reject": [
+                "treats the 4-item design as a single scope and assesses it holistically without splitting into lanes",
+                "agrees that the reusable validation framework is necessary before the bug can be fixed",
+                "skips the problem classification step and goes directly to recommendations"
+            ]
+        },
+        {
+            "prompt": "We're moving user session storage from in-process memory to a shared store, because sessions are lost on every deploy and users get logged out mid-transaction. Design: introduce the shared session store, dual-write during rollout, backfill active sessions, cut reads over, then remove the in-process path. Add contract tests at the auth boundary and a documented rollback.\n\nAssess this scope.",
+            "expect": [
+                "classifies the problem as FOUNDATION or INTEGRATION and states why — session integrity across a deploy boundary is data-integrity and cross-boundary, not product iteration",
+                "keeps the boundary contract tests and the rollback path inside Lane A rather than deferring them as SHOULD items",
+                "does not flag the staged rollout (dual-write, backfill, cut-over, remove) as over-architecture, since the classification justifies structural work in Lane A",
+                "still names an explicit Lane A objective and diff boundary rather than accepting the whole design uncritically",
+                "ends with a forced decision prompt rather than approving the plan as-written"
+            ],
+            "reject": [
+                "compresses Lane A to the smallest code change and defers the rollback or the boundary contract tests to Lane B",
+                "flags the staged migration as unnecessary abstraction or new surface area without reference to the classification",
+                "classifies the problem as FEATURE because the individual code changes look small",
+                "approves the design wholesale without producing a lane split"
+            ]
+        }
+    ]
+}
