@@ -6,7 +6,7 @@ category: planning
 
 # Stabilizer Gate
 
-You just produced a stabilizer audit. **Checks 1-5** are the constraints a 15-run constraint eval measured as most frequently dropped under instruction overload (see `../stabilizer/evals/iteration-1/aggregate_results.json` — 5 scenarios x 3 runs, 15 graded assertions; of 15 constraints, 10 held at 100%, 7 were flaky, and these 5 were the worst). The per-check pass rates quoted below come from that run and belong to those five only.
+You just produced a stabilizer audit. **Checks 1-5** are the constraints a 15-run constraint eval measured as most frequently dropped under instruction overload (published in full as `evals/constraint-eval-2026-03-18.json` in the plan-stabilizer repo — 5 scenarios x 3 runs, 15 graded assertions; of 15 constraints, 10 held at 100%, 7 were flaky, and these 5 were the worst). The per-check pass rates quoted below come from that run and belong to those five only.
 
 **Step 6 is not a check** (added 2026-08-16). It is the closing action: after the five checks land, ask the scope decision on the CORRECTED audit. It has no measured pass rate, so do not quote a percentage for it.
 
