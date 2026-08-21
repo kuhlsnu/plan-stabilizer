@@ -78,16 +78,19 @@ of the finished partition and nothing short of it.
 The Lane A/B question presumes an unscoped input: a brainstorm, a design, a bare change request.
 When stabilizer is invoked from `heman-plan-sequence`, the input is a plan that has ALREADY passed
 `heman-writing-plans` and carries a `## Intended behaviour (normative)` section with each item
-tagged `[MUST]` or `[MAY]`. Those tags **are** Lane A and Lane B, in the Architect's voice, made
-explicit in the artifact. Re-asking Lane A/B ignores them and invites regression: the second
-answer is systematically smaller than the first, because that is the direction Lane A pulls.
+tagged `[MUST]` or `[MAY]` — or, in a project whose own convention uses
+`[LOAD-BEARING]`/`[CHOICE]` for the same purpose (observed in ADAPT), treat those as the same tags
+under different names: `[LOAD-BEARING]` = `[MUST]`, `[CHOICE]` = `[MAY]`. Those tags **are** Lane A
+and Lane B, in the Architect's voice, made explicit in the artifact. Re-asking Lane A/B ignores them
+and invites regression: the second answer is systematically smaller than the first, because that is
+the direction Lane A pulls.
 
 Detection is mechanical, not judgment: does the input contain `## Intended behaviour (normative)`
-with at least one `[MUST]` bullet? Then the input is scoped. Two paths:
+with at least one `[MUST]` or `[LOAD-BEARING]` bullet? Then the input is scoped. Two paths:
 
 - **Scoped input (pipeline default) — AUDIT the tags, do not re-derive.** Take the plan's
-  `[MUST]` items as Lane A and its `[MAY]` items as Lane B. Run Step 3's gate checks against
-  them. Report:
+  `[MUST]`/`[LOAD-BEARING]` items as Lane A and its `[MAY]`/`[CHOICE]` items as Lane B. Run Step 3's
+  gate checks against them. Report:
   - **Consistency:** is any `[MUST]` actually deferrable without breaking the change? Is any
     `[MAY]` a hidden prerequisite of a `[MUST]`? Name specifically, quoting the plan.
   - **Coverage:** does any Step 3 RED flag land on an item the plan tagged `[MAY]`? That is
