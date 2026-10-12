@@ -12,45 +12,27 @@ agent is only asserting, then makes you pick before anyone writes code.
 
 Two agent skills. Plain markdown, nothing vendor-specific.
 
----
-
-## How it works
-
-Two questions run first, because the lane split has preconditions and forcing it where they fail produces a scope-down that cannot survive review:
-
-- **Would stopping halfway be worth anything?** The one-hour question below assumes value is roughly linear in scope, so a fraction of the work delivers a fraction of the value. That inverts on partition work: refactors, migrations, renames, terminology sweeps, dependency upgrades, de-duplication. There the value is a global property ("small enough to read end to end"), a half-partitioned state fails it exactly as hard as an untouched one, and half a rename is worse than no rename. When the answer is no, stabilizer reports a completion state, a checkpoint sequence, and a rollback per checkpoint instead of two lanes, and the choice becomes ship the whole partition now or defer it.
-- **Has this plan already been scoped?** A plan arriving with `[MUST]` and `[MAY]` tags already carries its author's Lane A and Lane B. Re-deriving them invites regression, because the second answer is systematically smaller than the first: that is the direction Lane A pulls. Stabilizer audits those tags for consistency and coverage instead of re-asking a question the author already answered.
-
-On an unscoped plan whose value is linear in scope, four steps:
-
-1. **Classify the problem** — Is this FEATURE, FOUNDATION, INTEGRATION, or EXPERIMENT? Classification determines how aggressively Lane A gets compressed. A single-file validation bug is FEATURE even if the design proposes a cross-module refactor. A data migration touching auth is FOUNDATION even if the design looks small.
-
-2. **Split into two lanes** —
-   - **Lane A (Minimal Deterministic Slice):** If you had one hour, what would you ship? One guard, one reorder, one constraint — plus the invariants that must still hold in six months, a rollback path, and two tests (reproduction + regression). No new abstractions unless a MUST invariant requires one.
-   - **Lane B (System Vision):** The original brainstorming output, copied verbatim, tagged with RFC 2119 labels. MUST items are already in Lane A. SHOULD items are Phase 2 candidates. MAY items are Phase 3+.
-
-3. **Run gate checks** — Scan for five specific failure patterns and flag them RED, YELLOW, or GREEN. Each flag includes the exact quoted sentence from the plan and the smallest concrete patch to fix it.
-
-4. **Name the options, but don't ask yet** — Stabilizer renders the audit and states the choice as text. It does not open the dialog, because the checks that follow can still reclassify the problem or move an item out of Lane A.
-
-Then `stabilizer-gate` runs automatically: five checks on the constraints the first skill is statistically weakest at, and then, last, the decision, asked on the corrected audit rather than the draft.
-
-<img src="docs/flow.svg" alt="A design is classified, split into Lane A and Lane B, audited, then checked by stabilizer-gate which sends corrections back to the audit before a decision is presented for you to choose." width="640">
+[Install](#install) · [What it looks like](#what-it-looks-like) · [How it works](#how-it-works) · [Guarantees](#guarantees) · [Why it exists](#why-it-exists)
 
 ---
 
-## Two modes
+## Install
 
-| Mode | Trigger | Output | Rewrites plan? |
-|------|---------|--------|----------------|
-| **Audit** (default) | Auto after brainstorming/plan | Lanes + flags + decision prompt | Never |
-| **Commit** | Manual `/stabilizer` | Implementation steps, PR scope, diffs | Only Lane A, only after user chooses |
+```bash
+git clone https://github.com/kuhlsnu/plan-stabilizer
+cp -r plan-stabilizer/skills/stabilizer \
+      plan-stabilizer/skills/stabilizer-gate \
+      ~/.claude/skills/
+```
 
-Audit mode is a lens, not a gatekeeper. It labels and asks. It never blocks, recommends Lane A as morally superior, or quietly minimizes your vision.
+That path is Claude Code's convention; any harness that loads markdown skills will do.
+Install both, since `stabilizer` hands off to `stabilizer-gate` by name.
 
 ---
 
 ## What it looks like
+
+Key: **Lane A** is the slice that survives examination. **Lane B** is the original plan, kept verbatim and tagged `MUST` / `SHOULD` / `MAY`. The full procedure is under [How it works](#how-it-works).
 
 ### Example 1 — FEATURE class
 
@@ -159,6 +141,44 @@ The admin UI is exciting, but excitement is not a MUST. Tag it MAY and present i
 
 ---
 
+## How it works
+
+On an unscoped plan whose value is linear in scope, four steps. (Two [questions](#two-questions-run-before-step-1) run first and decide whether that applies.)
+
+1. **Classify the problem** — Is this FEATURE, FOUNDATION, INTEGRATION, or EXPERIMENT? Classification determines how aggressively Lane A gets compressed. A single-file validation bug is FEATURE even if the design proposes a cross-module refactor. A data migration touching auth is FOUNDATION even if the design looks small.
+
+2. **Split into two lanes** —
+   - **Lane A (Minimal Deterministic Slice):** If you had one hour, what would you ship? One guard, one reorder, one constraint — plus the invariants that must still hold in six months, a rollback path, and two tests (reproduction + regression). No new abstractions unless a MUST invariant requires one.
+   - **Lane B (System Vision):** The original brainstorming output, copied verbatim, tagged with RFC 2119 labels. MUST items are already in Lane A. SHOULD items are Phase 2 candidates. MAY items are Phase 3+.
+
+3. **Run gate checks** — Scan for five specific failure patterns and flag them RED, YELLOW, or GREEN. Each flag includes the exact quoted sentence from the plan and the smallest concrete patch to fix it.
+
+4. **Name the options, but don't ask yet** — Stabilizer renders the audit and states the choice as text. It does not open the dialog, because the checks that follow can still reclassify the problem or move an item out of Lane A.
+
+Then `stabilizer-gate` runs automatically: five checks on the constraints the first skill is statistically weakest at, and then, last, the decision, asked on the corrected audit rather than the draft.
+
+<img src="docs/flow.svg" alt="A design is classified, split into Lane A and Lane B, audited, then checked by stabilizer-gate which sends corrections back to the audit before a decision is presented for you to choose." width="640">
+
+### Two questions run before step 1
+
+The lane split has preconditions, and forcing it where they fail produces a scope-down that cannot survive review. So two questions run before step 1:
+
+- **Would stopping halfway be worth anything?** The one-hour question in step 2 assumes value is roughly linear in scope, so a fraction of the work delivers a fraction of the value. That inverts on partition work: refactors, migrations, renames, terminology sweeps, dependency upgrades, de-duplication. There the value is a global property ("small enough to read end to end"), a half-partitioned state fails it exactly as hard as an untouched one, and half a rename is worse than no rename. When the answer is no, stabilizer reports a completion state, a checkpoint sequence, and a rollback per checkpoint instead of two lanes, and the choice becomes ship the whole partition now or defer it.
+- **Has this plan already been scoped?** A plan arriving with `[MUST]` and `[MAY]` tags already carries its author's Lane A and Lane B. Re-deriving them invites regression, because the second answer is systematically smaller than the first: that is the direction Lane A pulls. Stabilizer audits those tags for consistency and coverage instead of re-asking a question the author already answered.
+
+---
+
+## Two modes
+
+| Mode | Trigger | Output | Rewrites plan? |
+|------|---------|--------|----------------|
+| **Audit** (default) | Auto after brainstorming/plan | Lanes + flags + decision prompt | Never |
+| **Commit** | Manual `/stabilizer` | Implementation steps, PR scope, diffs | Only Lane A, only after user chooses |
+
+Audit mode is a lens, not a gatekeeper. It labels and asks. It never blocks, recommends Lane A as morally superior, or quietly minimizes your vision.
+
+---
+
 ## The four classifications
 
 Classification determines how hard Lane A gets compressed, tailored to how much risk the problem actually carries.
@@ -186,7 +206,7 @@ After splitting lanes, the audit scans for these patterns. Each flag includes th
 
 ---
 
-## The five gate-check checks, then the decision
+## stabilizer-gate: checking the audit itself
 
 `stabilizer-gate` doesn't re-run the gates above. It checks the *audit itself* — a second pass over the five things a 15-constraint eval found the first skill gets wrong most often:
 
@@ -206,11 +226,11 @@ Check 3 — smallest patch specificity — is the weakest of all at 60% pass rat
 | 4. Abstraction creep in Lane A | 73% (11/15) |
 | 5. Decision neutrality | 80% (12/15) |
 
-<img src="docs/eval.svg" alt="15 constraints: 10 held at 100% and get no check; 7 were flaky, of which the 5 worst became gate checks and 2 were skipped." width="640">
+<img src="docs/eval.svg" alt="15 constraints: 8 held at 100% and get no check; 7 were flaky, of which the 5 worst became gate checks and 2 were skipped." width="640">
 
 **Then a sixth step that is not a check: it asks the decision.** Checks 1-5 can reclassify the problem, move items out of Lane A, and rewrite steering language, each of which changes what is being chosen. Asking before they run means approving one thing and committing another. So the dialog opens last, on the corrected audit, with the options re-derived from it. It appears in no table above, because it is an action rather than a check and has no pass rate to report.
 
-Ten constraints never failed, so nothing checks them. Full results in [`evals/`](evals/constraint-eval-2026-03-18.json). Six months of use across different projects kept these same five as the weakest: **123 runs in the last 30 days** alone.
+Eight constraints never failed, so nothing checks them. Full results in [`evals/`](evals/constraint-eval-2026-03-18.json). Six months of use across different projects kept these same five as the weakest: **123 runs in the last 30 days** alone.
 
 ---
 
@@ -227,7 +247,9 @@ These are non-negotiable. They are the reason this tool exists instead of just a
 
 ---
 
-## Calibration failure
+## Why it exists
+
+### Calibration failure
 
 You know the type: shows up with a binder, color-coded tabs, an executive summary. Doesn't
 know where the bathroom is. That's the agent that just handed you a plan.
@@ -243,9 +265,7 @@ critiquing, which is why telling an agent to review its own plan harder doesn't 
 The APIs in that plan are real. The libraries exist. Nothing was hallucinated, and it still
 won't survive contact with your codebase.
 
----
-
-## The mismanaged geniuses hypothesis
+### The mismanaged geniuses hypothesis
 
 Alex Zhang's name for it: capable models sit underused because the scaffold around them is
 brittle, hand-built, and specific to one task. A weak benchmark score often measures the
@@ -258,20 +278,6 @@ the plans an orchestrator model produces are "intuitive and easy to describe," w
 exactly the problem. A bad decomposition reads the same as a good one until you run it.
 Lane A and Lane B are the scaffold fix: force every claim into a bucket a human can check,
 instead of asking the model that wrote the plan to also grade it.
-
----
-
-## Install
-
-```bash
-git clone https://github.com/kuhlsnu/plan-stabilizer
-cp -r plan-stabilizer/skills/stabilizer \
-      plan-stabilizer/skills/stabilizer-gate \
-      ~/.claude/skills/
-```
-
-That path is Claude Code's convention; any harness that loads markdown skills will do.
-Install both, since `stabilizer` hands off to `stabilizer-gate` by name.
 
 ---
 
